@@ -75,74 +75,87 @@ function ProjectList({ projects, setProjects, selectedProject, setSelectedProjec
   }
 
   return (
-    <div className="col-span-1 bg-white p-4 rounded-lg shadow">
-      <h2 className="text-xl font-bold mb-4">Your Projects</h2>
+  <div className="w-full">
 
-      <button
-        className="bg-blue-500 text-white px-3 py-1 rounded mb-3 hover:bg-blue-600"
-        onClick={toggleForm}
-      >New Project</button>
+    <h2 className="text-xl font-bold mb-4">Your Projects</h2>
 
+    {/* New Project Button */}
+    <button
+      className="w-full bg-blue-500 text-white py-2 rounded mb-4 hover:bg-blue-600"
+      onClick={toggleForm}
+    >
+      + New Project
+    </button>
 
+    {/* Create Project Form */}
+    {showForm && (
+      <form onSubmit={handleAddProject} className="mb-4">
+        <div className="flex flex-col gap-3">
 
-      {showForm &&
-        <form onSubmit={handleAddProject}>
-          <div>
-            <div className="flex flex-col items-center px-4">
-              <input
-                type="text"
-                placeholder="Title"
-                value={projectTitle}
-                onChange={(e) => {
-                  setProjectTitle(e.target.value);
-                }}
-                className="border p-2 rounded mb-2 w-full max-w-md"
-              ></input>
+          <input
+            type="text"
+            placeholder="Project Title"
+            value={projectTitle}
+            onChange={(e) => setProjectTitle(e.target.value)}
+            className="w-full border p-2 rounded"
+          />
 
-              <input
-                type="text"
-                placeholder="Description"
-                value={projectDescription}
-                onChange={(e) => {
-                  setProjectDescription(e.target.value);
-                }}
-                className="border p-2 rounded mb-2 w-full max-w-md"
-              ></input>
-            </div>
-            <button
-              className="bg-green-500 border p-2 rounded mb-2 w-full hover:bg-green-600"
+          <input
+            type="text"
+            placeholder="Project Description"
+            value={projectDescription}
+            onChange={(e) => setProjectDescription(e.target.value)}
+            className="w-full border p-2 rounded"
+          />
 
-            >Create Project</button>
-          </div>
-        </form>
-      }
+          <button className="w-full bg-green-500 text-white p-2 rounded hover:bg-green-600">
+            Create Project
+          </button>
 
+        </div>
+      </form>
+    )}
 
-
+    {/* Project List */}
+    <div className="flex flex-col gap-3">
 
       {projects.map((project) => (
         <div
           key={project.id}
           onClick={() => setSelectedProject(project.id)}
-          className={`p-3 mb-2 rounded cursor-pointer ${selectedProject === project.id
-            ? "bg-blue-500 text-white"
-            : "bg-gray-100"
-            }`}
+          className={`p-3 rounded cursor-pointer transition ${
+            selectedProject === project.id
+              ? "bg-blue-500 text-white"
+              : "bg-gray-100 hover:bg-gray-200"
+          }`}
         >
-          <h3 className="font-semibold">{project.title}</h3>
-          <p className="text-sm">{project.description}</p>
-          <button
-            className="bg-red-500 text-sm mt-2 rounded p-1 hover:bg-red-600"
-            onClick={(e) => {
-              e.stopPropagation();
-              handleDeleteProject(project.id);
-              // console.log(project.id);
-            }}
-          >Delete</button>
+
+          <div className="flex justify-between items-start">
+
+            <div>
+              <h3 className="font-semibold">{project.title}</h3>
+              <p className="text-sm opacity-80">{project.description}</p>
+            </div>
+
+            <button
+              className="text-red-500 text-sm hover:text-red-700"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleDeleteProject(project.id);
+              }}
+            >
+              Delete
+            </button>
+
+          </div>
+
         </div>
       ))}
+
     </div>
-  )
+
+  </div>
+);
 }
 
 export default ProjectList;
