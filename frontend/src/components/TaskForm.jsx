@@ -5,19 +5,21 @@ export function TaskForm({ taskTitle, setTaskTitle, taskDescription, setTaskDesc
   return (
 
     <div className="mt-4 flex gap-2">
-      <input
-        className="border p-2 rounded w-1/3"
-        placeholder="Task title"
-        value={taskTitle}
-        onChange={(e) => setTaskTitle(e.target.value)}
-      />
+      <div className="flex flex-col items-center px-4">
+        <input
+          className="border p-2 rounded w-full max-w-md"
+          placeholder="Task title"
+          value={taskTitle}
+          onChange={(e) => setTaskTitle(e.target.value)}
+        />
 
-      <input
-        className="border p-2 rounded w-1/2"
-        placeholder="Task Description"
-        value={taskDescription}
-        onChange={(e) => setTaskDescription(e.target.value)}
-      />
+        <input
+          className="border p-2 rounded w-1/2"
+          placeholder="Task Description"
+          value={taskDescription}
+          onChange={(e) => setTaskDescription(e.target.value)}
+        />
+      </div>
 
       <select
         value={taskPriority}

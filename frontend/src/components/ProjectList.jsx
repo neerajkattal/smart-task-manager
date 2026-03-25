@@ -88,26 +88,27 @@ function ProjectList({ projects, setProjects, selectedProject, setSelectedProjec
       {showForm &&
         <form onSubmit={handleAddProject}>
           <div>
-            <input
-              type="text"
-              placeholder="Title"
-              value={projectTitle}
-              onChange={(e) => {
-                setProjectTitle(e.target.value);
-              }}
-              className="border p-2 rounded mb-2 w-full"
-            ></input>
+            <div className="flex flex-col items-center px-4">
+              <input
+                type="text"
+                placeholder="Title"
+                value={projectTitle}
+                onChange={(e) => {
+                  setProjectTitle(e.target.value);
+                }}
+                className="border p-2 rounded mb-2 w-full max-w-md"
+              ></input>
 
-            <input
-              type="text"
-              placeholder="Description"
-              value={projectDescription}
-              onChange={(e) => {
-                setProjectDescription(e.target.value);
-              }}
-              className="border p-2 rounded mb-2 w-full"
-            ></input>
-
+              <input
+                type="text"
+                placeholder="Description"
+                value={projectDescription}
+                onChange={(e) => {
+                  setProjectDescription(e.target.value);
+                }}
+                className="border p-2 rounded mb-2 w-full max-w-md"
+              ></input>
+            </div>
             <button
               className="bg-green-500 border p-2 rounded mb-2 w-full hover:bg-green-600"
 
