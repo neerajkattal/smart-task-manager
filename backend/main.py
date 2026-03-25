@@ -19,7 +19,7 @@ def on_startup():
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allow all origins for simplicity
+    allow_origins=["https://smart-task-manager-nine-theta.vercel.app/"],  # Allow all origins for simplicity
     allow_methods=["*"],  # Allow all HTTP methods
     allow_headers=["*"],  # Allow all headers
     allow_credentials=True,  # Allow credentials (cookies, authorization headers, etc.)
