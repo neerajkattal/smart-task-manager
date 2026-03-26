@@ -1,6 +1,7 @@
 import { useState } from "react";
 import API from "../services/api";
 import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 
 
@@ -138,6 +139,13 @@ function Signup() {
             className="w-full bg-green-500 text-white p-2 rounded hover:bg-green-600 disabled:bg-gray-400 disabled:cursor-not-allowed"
           >{loading ? "Loading..." : "Signup"}</button>
         </form>
+        <div className="flex flex-col items-center">
+          <p className="mt-5">
+            Already a user? 
+            <Link to="/login" className="text-blue-500">  Click here!</Link>
+
+          </p>
+        </div>
       </div>
 
     </div>
