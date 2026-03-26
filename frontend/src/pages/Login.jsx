@@ -1,7 +1,7 @@
 import { useState } from "react";
 import API from "../services/api";
 import { useNavigate } from "react-router-dom";
-
+import { Link } from "react-router-dom";
 
 function Login() {
   const [email, setEmail] = useState("");
@@ -58,11 +58,18 @@ function Login() {
             onChange={(e) => setPassword(e.target.value)}
             className="w-full border p-2 rounded mb-4"
           />
-          <button 
+          <button
             type="submit"
             className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
-            >Login</button>
+          >Login</button>
         </form>
+        <div className="flex flex-col items-center">
+          <p className="mt-5">
+            New here?
+            <Link to="/signup" className="text-blue-500">  Click here to Signup!</Link>
+
+          </p>
+        </div>
       </div>
     </div>
   )
