@@ -7,12 +7,14 @@ function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
 
   // console.log(email, password);
 
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
 
     try {
       const response = await API.post(
@@ -27,9 +29,18 @@ function Login() {
       const token = response.data.access_token;
 
       localStorage.setItem("token", token);
-      navigate("/dashboard");
+
+     
+
+      setTimeout(() => {
+        setLoading(false);
+      
+        navigate("/dashboard");
+      },50);
+       
 
     } catch (error) {
+      setLoading(false);
       alert("Invalid credentials");
     }
   };
@@ -61,7 +72,7 @@ function Login() {
           <button
             type="submit"
             className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
-          >Login</button>
+          >{loading ? "Loading..." : "Login"}</button>
         </form>
         <div className="flex flex-col items-center">
           <p className="mt-5">

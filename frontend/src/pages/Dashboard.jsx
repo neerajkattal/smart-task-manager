@@ -30,6 +30,8 @@ function Dashboard() {
 
   const [showTaskForm, setShowTaskForm] = useState(false);
 
+  const [loadingTasks, setLoadingTasks] = useState(false);
+
   // Redirect to login if not authenticated
   useEffect(() => {
     if (!token) {
@@ -63,10 +65,12 @@ function Dashboard() {
 
   // Fetch tasks when a project is selected
   useEffect(() => {
-    if (!selectedProject) return;
+    if (selectedProject === null) return;
 
     const fetchTasks = async () => {
       try {
+        setLoadingTasks(true);
+
         const response = await API.get(
           `/projects/${selectedProject}/tasks`,
           {
@@ -75,15 +79,18 @@ function Dashboard() {
             },
           }
         );
+        setLoadingTasks(false);
 
         console.log(response.data);
         setTasks(response.data);
 
       } catch (error) {
+        setLoadingTasks(false);
         console.error(error);
       }
     };
     setTasks([]);
+
     fetchTasks();
   }, [selectedProject, token]);
 
@@ -215,7 +222,7 @@ function Dashboard() {
     <div className="min-h-screen bg-gray-100 px-4 py-6">
 
       {/* Header */}
-      <div className="mb-6">
+      <div className="mb-6 mt-6">
         <h1 className="text-3xl font-bold text-gray-800">Dashboard</h1>
       </div>
 
@@ -251,6 +258,8 @@ function Dashboard() {
             setTasks={setTasks}
             searchTerm={searchTerm}
             setSearchTerm={setSearchTerm}
+            loadingTasks={loadingTasks}
+
           />
 
           {/* Add Task Button */}

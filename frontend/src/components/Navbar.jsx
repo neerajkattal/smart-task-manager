@@ -11,7 +11,7 @@ export function Navbar() {
   };
 
   return (
-    <div className="w-full p-4 bg-white shadow mb-6">
+    <div className="w-full p-4 bg-white shadow ">
       <div className="flex justify-between items-center">
         <h1 className="text-xl font-bold">Smart Task Manager</h1>
 

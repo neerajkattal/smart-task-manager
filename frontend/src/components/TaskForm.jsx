@@ -63,6 +63,12 @@ export function TaskForm({
           Add Task
         </button>
 
+        {!selectedProject && (
+          <p className="text-red-500 text-sm">
+            Note: Please select a project first
+          </p>
+        )}
+
       </div>
     </div>
   );
