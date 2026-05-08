@@ -23,17 +23,12 @@ def on_startup():
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allow all origins for simplicity
-    allow_methods=["*"],  # Allow all HTTP methods
-    allow_headers=["*"],  # Allow all headers
-    allow_credentials=True, 
     allow_origins=[
-
-        "https://smart-task-manager-self-five.vercel.app",
-
-        "http://localhost:3000",
-
-    ], # Allow credentials (cookies, authorization headers, etc.)
+        "https://your-vercel-app.vercel.app"
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 # Including router for project
