@@ -24,7 +24,7 @@ def on_startup():
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "https://your-vercel-app.vercel.app"
+        "https://smart-task-manager-self-five.vercel.app"
     ],
     allow_credentials=True,
     allow_methods=["*"],
