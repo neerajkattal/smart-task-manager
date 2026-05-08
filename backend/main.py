@@ -15,7 +15,11 @@ app = FastAPI(title="Smart Task Manager API", version="1.0.0", description="API 
 
 @app.on_event("startup")
 def on_startup():
-    Base.metadata.create_all(bind=engine)
+    try:
+        Base.metadata.create_all(bind=engine)
+        print("✅ Database connected successfully")
+    except Exception as e:
+        print("❌ Startup error:", str(e))
 
 app.add_middleware(
     CORSMiddleware,
