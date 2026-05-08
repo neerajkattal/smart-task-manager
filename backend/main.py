@@ -26,7 +26,14 @@ app.add_middleware(
     allow_origins=["*"],  # Allow all origins for simplicity
     allow_methods=["*"],  # Allow all HTTP methods
     allow_headers=["*"],  # Allow all headers
-    allow_credentials=True,  # Allow credentials (cookies, authorization headers, etc.)
+    allow_credentials=True, 
+    allow_origins=[
+
+        "https://smart-task-manager-self-five.vercel.app",
+
+        "http://localhost:3000",
+
+    ], # Allow credentials (cookies, authorization headers, etc.)
 )
 
 # Including router for project
