@@ -10,18 +10,19 @@ DATABASE_URL = os.getenv("DATABASE_URL")
 
 # DB Engine Creation
 engine = create_engine(
-  DATABASE_URL, 
-  pool_pre_ping=True
+    DATABASE_URL,
+    pool_pre_ping=True,
+    connect_args={"sslmode": "require"}
 )
 
 # SessionLocal Creation
 SessionLocal = sessionmaker(
- autocommit=False,
- autoflush=False,
- bind=engine
+    autocommit=False,
+    autoflush=False,
+    bind=engine
 )
 
-#₹ Base Class Creation
+# Base Class Creation
 class Base(DeclarativeBase):
     pass
 
@@ -32,4 +33,3 @@ def get_db():
         yield db
     finally:
         db.close()
-
