@@ -4,7 +4,9 @@ import axios from "axios";
 //   baseURL: "https://smart-task-backend-cerf.onrender.com/",
 // });
 const API = axios.create({
-  baseURL: import.meta.env.VITE_API_URL,
+
+  baseURL: process.env.REACT_APP_API_URL,
+
 });
 
 
