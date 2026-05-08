@@ -15,20 +15,14 @@ app = FastAPI(title="Smart Task Manager API", version="1.0.0", description="API 
 
 @app.on_event("startup")
 def on_startup():
-    try:
-        Base.metadata.create_all(bind=engine)
-        print("✅ Database connected successfully")
-    except Exception as e:
-        print("❌ Startup error:", str(e))
+    Base.metadata.create_all(bind=engine)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "https://smart-task-manager-self-five.vercel.app"
-    ],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_origins=["*"],  # Allow all origins for simplicity
+    allow_methods=["*"],  # Allow all HTTP methods
+    allow_headers=["*"],  # Allow all headers
+    allow_credentials=True,  # Allow credentials (cookies, authorization headers, etc.)
 )
 
 # Including router for project
