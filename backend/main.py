@@ -8,6 +8,8 @@ from sqlalchemy import select
 
 from routers import projects, tasks, auth
 
+from models import User, Project, Task
+
 
 
 
