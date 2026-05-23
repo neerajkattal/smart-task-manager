@@ -14,8 +14,12 @@ from routers import projects, tasks, auth
 app = FastAPI(title="Smart Task Manager API", version="1.0.0", description="API for managing tasks with AI capabilities")
 
 @app.on_event("startup")
-def on_startup():
-    Base.metadata.create_all(bind=engine)
+async def on_startup():
+    try:
+        Base.metadata.create_all(bind=engine)
+        print("Database connected successfully")
+    except Exception as e:
+        print("Database connection failed:", e)
 
 app.add_middleware(
     CORSMiddleware,
