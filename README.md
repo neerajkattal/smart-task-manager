@@ -13,5 +13,3 @@
 - DB: PostgreSQL
 - Deployment: Vercel + Render
 
-## 🌐 Live Demo
-EMPTY RN
