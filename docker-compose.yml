@@ -22,4 +22,4 @@ services:
       - ./frontend:/app
     depends_on:
       - backend
-    restart: unless-stoppedwher
+    restart: unless-stopped
