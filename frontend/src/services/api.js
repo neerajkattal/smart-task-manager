@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const API = axios.create({
-  baseURL: "https://smart-task-backend-cerf.onrender.com/",
+  baseURL: process.env.REACT_APP_API_URL || "https://smart-task-backend-cerf.onrender.com/",
 });
 
 

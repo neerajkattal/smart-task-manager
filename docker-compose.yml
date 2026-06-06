@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  backend:
+    build: ./backend
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql://smart_task_db_9x51_user:CGftwkxWjiDs0V5Ipvhh2u0fHsXbuWkx@dpg-d89377ml51nc7381m560-a/smart_task_db_9x51
+      - SECRET_KEY=8c10a936480984cc9613120b3dc9345a055750b2d72b2c923db1f932084d4873
+    volumes:
+      - ./backend:/app
+    restart: unless-stopped
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - REACT_APP_API_URL=http://localhost:8000
+    volumes:
+      - ./frontend:/app
+    depends_on:
+      - backend
+    restart: unless-stoppedwher
