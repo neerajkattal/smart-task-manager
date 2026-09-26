@@ -2,6 +2,8 @@
 
 Full-stack task management application with React frontend and FastAPI backend.
 
+**Live:** [smart-task-manager-self-five.vercel.app](https://smart-task-manager-self-five.vercel.app/)
+
 ## Tech Stack
 
 - **Frontend**: React 19, React Router, Axios
