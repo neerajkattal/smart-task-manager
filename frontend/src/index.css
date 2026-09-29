@@ -1,3 +1,80 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Theme tokens as space-separated RGB so Tailwind's /opacity modifiers work.
+   Dark is the signature look; light keeps the same structure with an olive
+   accent, since the dark theme's lime has no contrast on white. */
+:root,
+:root[data-theme="dark"] {
+  --canvas: 13 14 16;
+  --panel: 17 19 22;
+  --card: 23 25 29;
+  --line: 38 41 46;
+  --ink: 228 229 231;
+  --muted: 138 143 152;
+  --faint: 94 99 107;
+  --accent: 215 255 58;
+  --accent-soft: 215 255 58;
+  --btn: 215 255 58;
+  --btn-ink: 13 14 16;
+  --high: 255 139 94;
+  --medium: 232 185 49;
+  --low: 110 115 123;
+  --done: 91 191 122;
+  color-scheme: dark;
+}
+
+:root[data-theme="light"] {
+  --canvas: 246 246 243;
+  --panel: 255 255 255;
+  --card: 255 255 255;
+  --line: 228 228 222;
+  --ink: 20 21 24;
+  --muted: 95 99 107;
+  --faint: 150 153 160;
+  --accent: 77 124 15;
+  --accent-soft: 132 204 22;
+  --btn: 20 21 24;
+  --btn-ink: 246 246 243;
+  --high: 194 65 12;
+  --medium: 161 98 7;
+  --low: 120 124 132;
+  --done: 21 128 61;
+  color-scheme: light;
+}
+
+body {
+  @apply bg-canvas text-ink font-sans antialiased;
+}
+
+/* One focus style for buttons and links: the accent ring. Text fields show
+   focus with their own accent border instead (see .field / focus-within). */
+:focus-visible:not(input):not(textarea) {
+  outline: 2px solid rgb(var(--accent));
+  outline-offset: 2px;
+}
+
+::selection {
+  background: rgb(var(--accent-soft) / 0.35);
+}
+
+@layer components {
+  .kbd {
+    @apply inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded font-mono text-[10px] leading-none text-muted border border-line border-b-2 bg-panel;
+  }
+  .field {
+    @apply w-full rounded-md border border-line bg-card px-3 py-2 text-sm text-ink placeholder:text-faint outline-none transition focus:border-accent;
+  }
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-md bg-btn px-3 py-2 text-sm font-medium text-btn-ink transition hover:opacity-90 disabled:opacity-50;
+  }
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 rounded-md border border-line px-3 py-2 text-sm text-muted transition hover:text-ink hover:bg-card;
+  }
+}
+
+input:focus-visible,
+textarea:focus-visible {
+  outline: none;
+}
