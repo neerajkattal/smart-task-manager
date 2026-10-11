@@ -1,156 +1,86 @@
 import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import API from "../services/api";
-import { useNavigate } from "react-router-dom";
-import { Link } from "react-router-dom";
-
-
-
+import { AuthShell, ErrorNote, SlowNotice, useSlowNotice } from "../components/AuthShell";
 
 function Signup() {
-
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-
-  console.log(username, email, password, confirmPassword);
-
-  const navigate = useNavigate();
-
   const [error, setError] = useState("");
-
-  const [loading, setLoading] = useState(false);
-
   const [success, setSuccess] = useState("");
+  const [loading, setLoading] = useState(false);
+  const slow = useSlowNotice(loading);
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     if (password !== confirmPassword) {
-      setError("Passwords do not match");
+      setError("Passwords don’t match.");
       return;
     }
-
+    setError("");
+    setLoading(true);
     try {
-
-      setLoading(true);
-
-      const response = await API.post("/signup", {
-        username: username,
-        email: email,
-        password: password,
-      })
-
-      console.log("Signup success:", response.data);
-
-
-      // Show success message and redirect to login after a short delay
-      setSuccess("Account created successfully! Redirecting to login...");
-      setError("");
-
-
+      await API.post("/signup", { username, email, password });
+      setSuccess("Account created. Taking you to log in…");
+      setTimeout(() => navigate("/login"), 1500);
+    } catch (err) {
+      const detail = err.response?.data?.detail;
+      if (typeof detail === "string") setError(detail);
+      else if (Array.isArray(detail)) setError(detail[0].msg);
+      else setError(err.response ? "Signup failed." : "Can’t reach the server. Try again in a moment.");
+    } finally {
       setLoading(false);
-
-      // Redirect to login after 3 seconds
-      setTimeout(() => {
-        navigate("/login");
-      }, 1500)
     }
-    catch (error) {
-
-      setLoading(false);
-
-      if (error.response && error.response.data) {
-        const data = error.response.data;
-
-        if (typeof data.detail === "string") {
-          setError(data.detail);
-        } else if (Array.isArray(data.detail)) {
-          setError(data.detail[0].msg);
-        } else {
-          setError("Signup failed");
-        }
-      } else {
-        setError("Network error");
-      }
-
-      setSuccess(""); 
-    }
-  }
-
-
+  };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="bg-white p-8 rounded shadow-md w-96">
-
-        <form onSubmit={handleSubmit}>
-
-          <h2 className="text-2xl font-bold mb-6 text-center">
-            Signup
-          </h2>
-
-          {/* Show error message */}
-          {error && (
-            <p className="text-red-500 text-sm mb-4 text-center">
-              {error}
-            </p>
-          )}
-
-          {/* Show success message */}
-          {success && (
-            <p className="text-green-500 text-sm mb-4 text-center">
-              {success}
-            </p>
-          )}
-
-          <input
-            type="text"
-            placeholder="Username"
-            value={username}
-            className="w-full border p-2 rounded mb-4"
-            onChange={(e) => { setUsername(e.target.value) }}
-          ></input>
-          <input
-            type="email"
-            placeholder="Email"
-            value={email}
-            className="w-full border p-2 rounded mb-4"
-            onChange={(e) => { setEmail(e.target.value) }}
-          ></input>
-          <input
-            type="password"
-            placeholder="Password"
-            value={password}
-            className="w-full border p-2 rounded mb-4"
-            onChange={(e) => { setPassword(e.target.value) }}
-          ></input>
-          <input
-            type="password"
-            placeholder="Confirm Password"
-            value={confirmPassword}
-            className="w-full border p-2 rounded mb-4"
-            onChange={(e) => { setConfirmPassword(e.target.value) }}
-          ></input>
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-green-500 text-white p-2 rounded hover:bg-green-600 disabled:bg-gray-400 disabled:cursor-not-allowed"
-          >{loading ? "Loading..." : "Signup"}</button>
-        </form>
-        <div className="flex flex-col items-center">
-          <p className="mt-5">
-            Already a user? 
-            <Link to="/login" className="text-blue-500">  Click here!</Link>
-
+    <AuthShell
+      title="Create your account"
+      subtitle="A keyboard-first place for your projects and tasks."
+      footer={
+        <>
+          Already have an account?{" "}
+          <Link to="/login" className="text-ink underline decoration-accent underline-offset-4">
+            Log in
+          </Link>
+        </>
+      }
+    >
+      <form onSubmit={handleSubmit} className="space-y-3">
+        {error && <ErrorNote>{error}</ErrorNote>}
+        {success && (
+          <p role="status" className="mb-4 rounded-md border border-done/40 bg-done/10 px-3 py-2 text-sm text-done">
+            {success}
           </p>
+        )}
+        <label className="block text-xs text-muted">
+          Username
+          <input required autoComplete="username" value={username} onChange={(e) => setUsername(e.target.value)} className="field mt-1" />
+        </label>
+        <label className="block text-xs text-muted">
+          Email
+          <input type="email" required autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} className="field mt-1" />
+        </label>
+        <div className="grid grid-cols-2 gap-3">
+          <label className="block text-xs text-muted">
+            Password
+            <input type="password" required maxLength={72} autoComplete="new-password" value={password} onChange={(e) => setPassword(e.target.value)} className="field mt-1" />
+          </label>
+          <label className="block text-xs text-muted">
+            Confirm
+            <input type="password" required maxLength={72} autoComplete="new-password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} className="field mt-1" />
+          </label>
         </div>
-      </div>
-
-    </div>
+        <button type="submit" disabled={loading || !!success} className="btn-primary mt-2 w-full">
+          {loading ? "Creating account…" : "Create account"}
+        </button>
+        {slow && <SlowNotice />}
+      </form>
+    </AuthShell>
   );
-
 }
 
 export default Signup;

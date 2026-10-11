@@ -1,90 +1,60 @@
 import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import API from "../services/api";
-import { useNavigate } from "react-router-dom";
-import { Link } from "react-router-dom";
+import { AuthShell, ErrorNote, SlowNotice, useSlowNotice } from "../components/AuthShell";
 
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
-
-  // console.log(email, password);
-
+  const [error, setError] = useState("");
+  const slow = useSlowNotice(loading);
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-
+    setError("");
     try {
-      const response = await API.post(
-        "/login",
-        new URLSearchParams({
-          username: email,
-          password: password,
-        })
-      );
-
-      console.log(response.data);
-      const token = response.data.access_token;
-
-      localStorage.setItem("token", token);
-
-     
-
-      setTimeout(() => {
-        setLoading(false);
-      
-        navigate("/dashboard");
-      },50);
-       
-
-    } catch (error) {
+      const response = await API.post("/login", new URLSearchParams({ username: email, password }));
+      localStorage.setItem("token", response.data.access_token);
+      navigate("/dashboard");
+    } catch (err) {
       setLoading(false);
-      alert("Invalid credentials");
+      setError(err.response ? "That email and password don’t match." : "Can’t reach the server. Try again in a moment.");
     }
   };
 
-
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="bg-white p-8 rounded shadow-md w-96">
-        <form onSubmit={handleSubmit}>
-
-          <h2 className="text-2xl font-bold mb-6 text-center">
-            Login
-          </h2>
-
-          <input
-            type="email"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="w-full border p-2 rounded mb-4"
-          />
-          <input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="w-full border p-2 rounded mb-4"
-          />
-          <button
-            type="submit"
-            className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
-          >{loading ? "Loading..." : "Login"}</button>
-        </form>
-        <div className="flex flex-col items-center">
-          <p className="mt-5">
-            New here?
-            <Link to="/signup" className="text-blue-500">  Click here to Signup!</Link>
-
-          </p>
-        </div>
-      </div>
-    </div>
-  )
-
+    <AuthShell
+      title="Welcome back"
+      subtitle="Log in to your workspace."
+      footer={
+        <>
+          New here?{" "}
+          <Link to="/signup" className="text-ink underline decoration-accent underline-offset-4">
+            Create an account
+          </Link>
+        </>
+      }
+    >
+      <form onSubmit={handleSubmit} className="space-y-3">
+        {error && <ErrorNote>{error}</ErrorNote>}
+        <label className="block text-xs text-muted">
+          Email
+          <input type="email" required autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} className="field mt-1" />
+        </label>
+        <label className="block text-xs text-muted">
+          Password
+          <input type="password" required autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} className="field mt-1" />
+        </label>
+        <button type="submit" disabled={loading} className="btn-primary mt-2 w-full">
+          {loading ? "Logging in…" : "Log in"}
+        </button>
+        {slow && <SlowNotice />}
+      </form>
+    </AuthShell>
+  );
 }
 
 export default Login;
