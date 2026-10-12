@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { dateToDeadline, PRIORITY_STYLE } from "../lib/tasks";
-import { CalendarIcon } from "./Icons";
+import { CalendarIcon, PlusIcon } from "./Icons";
 
 const OPTIONS = [
   { id: "high", short: "H" },
@@ -9,9 +9,9 @@ const OPTIONS = [
 ];
 
 // Inline "add a task" row: type, optionally pick priority and a date, press Enter.
-export function QuickAdd({ onAdd, inputRef, disabled }) {
+// Priority is owned by the dashboard so "+ Add task" on a column can preset it.
+export function QuickAdd({ onAdd, inputRef, disabled, priority, onPriorityChange: setPriority }) {
   const [title, setTitle] = useState("");
-  const [priority, setPriority] = useState("medium");
   const [date, setDate] = useState("");
 
   const submit = (e) => {
@@ -25,9 +25,11 @@ export function QuickAdd({ onAdd, inputRef, disabled }) {
   return (
     <form
       onSubmit={submit}
-      className="flex flex-wrap items-center gap-2 rounded-lg border border-line bg-card px-3 py-2 transition focus-within:border-accent"
+      className="flex flex-wrap items-center gap-2 rounded-lg border border-line bg-card px-3 py-2 transition focus-within:border-accent focus-within:ring-2 focus-within:ring-accent/25"
     >
-      <span className="h-3.5 w-3.5 shrink-0 rounded-full border-[1.5px] border-faint" />
+      <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-md bg-accent-soft/15 text-accent">
+        <PlusIcon />
+      </span>
       <input
         ref={inputRef}
         value={title}
@@ -35,7 +37,7 @@ export function QuickAdd({ onAdd, inputRef, disabled }) {
         disabled={disabled}
         onChange={(e) => setTitle(e.target.value)}
         onKeyDown={(e) => e.key === "Escape" && e.currentTarget.blur()}
-        placeholder={disabled ? "Pick a project to add tasks" : "Add a task…"}
+        placeholder={disabled ? "Pick a project to add tasks" : "Add a task, e.g. Email the recruiter"}
         aria-label="New task title"
         className="min-w-[10rem] flex-1 bg-transparent py-1 text-sm text-ink outline-none placeholder:text-faint"
       />
@@ -66,8 +68,8 @@ export function QuickAdd({ onAdd, inputRef, disabled }) {
           className="bg-transparent font-mono text-[11px] text-ink outline-none [color-scheme:inherit]"
         />
       </label>
-      <button type="submit" disabled={disabled || !title.trim()} className="kbd h-6 px-1.5 disabled:opacity-40" aria-label="Add task">
-        ↵
+      <button type="submit" disabled={disabled || !title.trim()} className="btn-primary px-3 py-1 text-xs disabled:opacity-40">
+        Add <span className="font-mono text-[10px] opacity-70">↵</span>
       </button>
     </form>
   );

@@ -11,7 +11,7 @@ import { TaskDialog } from "../components/TaskDialog";
 import { CommandPalette } from "../components/CommandPalette";
 import { SettingsDialog } from "../components/SettingsDialog";
 import { Splash } from "../components/Splash";
-import { BoardIcon, ListIcon, MoonIcon, SearchIcon, SunIcon } from "../components/Icons";
+import { BoardIcon, ListIcon, MoonIcon, PlusIcon, SearchIcon, SunIcon } from "../components/Icons";
 
 const readPref = (key, fallback) => {
   try {
@@ -51,6 +51,16 @@ function Dashboard() {
   const [toast, setToast] = useState("");
 
   const quickAddRef = useRef(null);
+  const [newPriority, setNewPriority] = useState("medium");
+
+  // Jump to the add-task row, optionally presetting its priority.
+  const startNewTask = (priority) => {
+    if (priority) setNewPriority(priority);
+    const input = quickAddRef.current;
+    if (!input) return;
+    input.scrollIntoView({ block: "center", behavior: "smooth" });
+    setTimeout(() => input.focus({ preventScroll: true }), 0);
+  };
   const searchRef = useRef(null);
 
   const toastTimer = useRef(null);
@@ -222,7 +232,7 @@ function Dashboard() {
         if (prev) setSelectedId(prev.id);
       } else if (key === "c") {
         e.preventDefault();
-        quickAddRef.current?.focus();
+        startNewTask();
       } else if (e.key === "/") {
         e.preventDefault();
         searchRef.current?.focus();
@@ -278,7 +288,7 @@ function Dashboard() {
       );
     }
     list.push(
-      { id: "new", group: "Actions", label: "New task", keys: ["C"], run: () => setTimeout(() => quickAddRef.current?.focus(), 0) },
+      { id: "new", group: "Actions", label: "New task", keys: ["C"], run: () => startNewTask() },
       { id: "view", group: "Actions", label: view === "board" ? "Switch to list view" : "Switch to board view", keys: ["V"], run: () => setView(view === "board" ? "list" : "board") },
       { id: "theme", group: "Actions", label: theme === "dark" ? "Switch to light mode" : "Switch to dark mode", run: toggleTheme },
       { id: "settings", group: "Actions", label: "Open settings (profile, password, appearance)", run: () => setSettingsOpen(true) },
@@ -377,6 +387,10 @@ function Dashboard() {
             ))}
           </div>
 
+          <button onClick={() => startNewTask()} disabled={!selectedProject} className="btn-primary py-1.5">
+            <PlusIcon /> New task <span className="kbd hidden border-btn-ink/20 bg-transparent text-btn-ink/70 sm:inline-flex">C</span>
+          </button>
+
           <button
             onClick={toggleTheme}
             className="btn-ghost px-2 py-1.5 md:hidden"
@@ -391,7 +405,13 @@ function Dashboard() {
         ) : (
           <>
             <div className="mb-5">
-              <QuickAdd onAdd={addTask} inputRef={quickAddRef} disabled={!selectedProject} />
+              <QuickAdd
+                onAdd={addTask}
+                inputRef={quickAddRef}
+                disabled={!selectedProject}
+                priority={newPriority}
+                onPriorityChange={setNewPriority}
+              />
             </div>
 
             {!loadingTasks && tasks.length === 0 && selectedProject ? (
@@ -407,7 +427,14 @@ function Dashboard() {
             ) : !loadingTasks && visible.length === 0 ? (
               <EmptyState title="No matches" body={`Nothing matches “${search}”.`} />
             ) : view === "board" ? (
-              <Board tasks={visible} loading={loadingTasks} selectedId={selectedId} onMove={moveTask} cardProps={cardProps} />
+              <Board
+                tasks={visible}
+                loading={loadingTasks}
+                selectedId={selectedId}
+                onMove={moveTask}
+                onAddInColumn={startNewTask}
+                cardProps={cardProps}
+              />
             ) : (
               <ListView tasks={visible} loading={loadingTasks} selectedId={selectedId} cardProps={cardProps} />
             )}
