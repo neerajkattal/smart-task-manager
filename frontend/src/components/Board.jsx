@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { COLUMNS, columnOf, PRIORITY_STYLE } from "../lib/tasks";
 import { TaskCard } from "./TaskCard";
+import { PlusIcon } from "./Icons";
 
 function SkeletonCard() {
   return (
@@ -14,7 +15,7 @@ function SkeletonCard() {
 
 // Kanban view. Dropping a card on a priority column sets that priority (and
 // reopens it if it was done); dropping on Done completes it.
-export function Board({ tasks, loading, selectedId, onMove, cardProps }) {
+export function Board({ tasks, loading, selectedId, onMove, onAddInColumn, cardProps }) {
   const [over, setOver] = useState(null);
 
   return (
@@ -58,6 +59,14 @@ export function Board({ tasks, loading, selectedId, onMove, cardProps }) {
                 <div className="flex flex-1 items-center justify-center rounded-lg border border-dashed border-line p-4 text-center text-xs text-faint">
                   {col.id === "done" ? "Finished tasks land here" : "Drop a task here"}
                 </div>
+              )}
+              {col.id !== "done" && !loading && (
+                <button
+                  onClick={() => onAddInColumn(col.id)}
+                  className="mt-0.5 flex items-center gap-1.5 rounded-md px-2 py-1.5 text-left text-xs text-faint transition hover:bg-card hover:text-ink"
+                >
+                  <PlusIcon /> Add task
+                </button>
               )}
             </div>
           </section>
