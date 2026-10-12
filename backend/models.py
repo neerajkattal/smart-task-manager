@@ -1,6 +1,6 @@
 
 from database import Base
-from sqlalchemy import Integer, String, DateTime, ForeignKey , Boolean
+from sqlalchemy import Integer, String, DateTime, ForeignKey , Boolean, Text
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 from datetime import datetime, UTC
 from typing import Optional
@@ -12,6 +12,8 @@ class User(Base):
   email : Mapped[str] = mapped_column(String(100), unique=True, index=True)
   username : Mapped[str] = mapped_column(String(100), unique=True, index=True)
   hashed_password : Mapped[str] = mapped_column(String(100))
+  # Small profile picture stored as a data URL (resized in the browser first).
+  avatar : Mapped[Optional[str]] = mapped_column(Text, nullable=True)
   created_at : Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(UTC))
   projects: Mapped[list["Project"]] = relationship(back_populates="owner", cascade="all, delete-orphan")
   

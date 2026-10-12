@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from database import Base, engine
 
-from sqlalchemy import select
+from sqlalchemy import select, inspect, text
 
 # from schemas import UserCreate, UserLogin
 
@@ -15,10 +15,19 @@ from models import User, Project, Task
 
 app = FastAPI(title="Smart Task Manager API", version="1.0.0", description="API for managing tasks with AI capabilities")
 
+# create_all only creates missing tables, so columns added to an existing
+# table later (users.avatar) are added here instead.
+def add_missing_columns():
+    columns = {c["name"] for c in inspect(engine).get_columns("users")}
+    if "avatar" not in columns:
+        with engine.begin() as conn:
+            conn.execute(text("ALTER TABLE users ADD COLUMN avatar TEXT"))
+
 @app.on_event("startup")
 async def on_startup():
     try:
         Base.metadata.create_all(bind=engine)
+        add_missing_columns()
         print("Database connected successfully")
     except Exception as e:
         print("Database connection failed:", e)
