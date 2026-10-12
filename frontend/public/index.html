@@ -28,11 +28,14 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
     <script>
-      // Apply the saved (or system) theme before first paint to avoid a flash.
+      // Apply saved appearance (see src/lib/theme.js) before first paint to avoid a flash.
       try {
+        var root = document.documentElement;
         var t = localStorage.getItem("theme");
         if (t !== "light" && t !== "dark") t = matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
-        document.documentElement.dataset.theme = t;
+        root.dataset.theme = t;
+        root.dataset.accent = localStorage.getItem("accent") || "lime";
+        root.dataset.bg = localStorage.getItem("bg") || "neutral";
       } catch (e) {}
     </script>
     <title>Smart Task Manager</title>

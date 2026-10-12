@@ -44,6 +44,23 @@
   color-scheme: light;
 }
 
+/* Accent colours (Settings > Appearance). Each has a bright value for the
+   dark theme and a deeper one that keeps contrast on the light theme. */
+:root[data-theme="dark"][data-accent="sky"] { --accent: 92 184 255; --accent-soft: 92 184 255; --btn: 92 184 255; }
+:root[data-theme="dark"][data-accent="rose"] { --accent: 255 122 162; --accent-soft: 255 122 162; --btn: 255 122 162; }
+:root[data-theme="dark"][data-accent="violet"] { --accent: 180 150 255; --accent-soft: 180 150 255; --btn: 180 150 255; }
+:root[data-theme="dark"][data-accent="mint"] { --accent: 74 222 168; --accent-soft: 74 222 168; --btn: 74 222 168; }
+:root[data-theme="light"][data-accent="sky"] { --accent: 3 105 161; --accent-soft: 56 189 248; }
+:root[data-theme="light"][data-accent="rose"] { --accent: 190 24 93; --accent-soft: 244 114 182; }
+:root[data-theme="light"][data-accent="violet"] { --accent: 109 40 217; --accent-soft: 167 139 250; }
+:root[data-theme="light"][data-accent="mint"] { --accent: 4 120 87; --accent-soft: 52 211 153; }
+
+/* Background tones. "neutral" is the default set above. */
+:root[data-theme="dark"][data-bg="cool"] { --canvas: 11 14 20; --panel: 15 19 27; --card: 21 26 36; --line: 35 42 56; }
+:root[data-theme="dark"][data-bg="warm"] { --canvas: 18 16 14; --panel: 23 20 18; --card: 30 27 24; --line: 46 42 38; }
+:root[data-theme="light"][data-bg="cool"] { --canvas: 241 245 250; --line: 222 228 238; }
+:root[data-theme="light"][data-bg="warm"] { --canvas: 247 243 236; --panel: 255 253 249; --card: 255 253 249; --line: 232 225 213; }
+
 body {
   @apply bg-canvas text-ink font-sans antialiased;
 }
@@ -77,4 +94,37 @@ body {
 input:focus-visible,
 textarea:focus-visible {
   outline: none;
+}
+
+/* Loading bar and the login page's animated preview. */
+@keyframes loading-slide {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(260%); }
+}
+@keyframes sc-type {
+  0% { width: 0; animation-timing-function: steps(23, end); }
+  22%, 30% { width: 23ch; }
+  31%, 100% { width: 0; }
+}
+@keyframes sc-caret {
+  50% { opacity: 0; }
+}
+@keyframes sc-new {
+  0%, 30% { opacity: 0; transform: translateY(-4px); }
+  34% { opacity: 1; transform: none; box-shadow: none; }
+  40%, 58% { opacity: 1; transform: none; box-shadow: 0 0 0 1px rgb(var(--accent)); border-color: rgb(var(--accent)); }
+  63%, 100% { opacity: 0; transform: translateX(10px); }
+}
+@keyframes sc-done {
+  0%, 62% { opacity: 0; transform: translateX(-10px); }
+  68%, 94% { opacity: 1; transform: none; }
+  100% { opacity: 0; }
+}
+@keyframes sc-key-enter {
+  0%, 28%, 36%, 100% { transform: none; background: rgb(var(--panel)); }
+  30%, 34% { transform: translateY(1px); background: rgb(var(--accent-soft) / 0.3); }
+}
+@keyframes sc-key-x {
+  0%, 54%, 62%, 100% { transform: none; background: rgb(var(--panel)); }
+  56%, 60% { transform: translateY(1px); background: rgb(var(--accent-soft) / 0.3); }
 }
