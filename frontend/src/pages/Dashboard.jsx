@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import API from "../services/api";
-import { useTheme } from "../lib/theme";
+import { usePreferences } from "../lib/theme";
 import { matchesSearch, orderTasks, PRIORITIES, taskKey } from "../lib/tasks";
 import { Sidebar } from "../components/Sidebar";
 import { QuickAdd } from "../components/QuickAdd";
@@ -9,6 +9,8 @@ import { Board } from "../components/Board";
 import { ListView } from "../components/ListView";
 import { TaskDialog } from "../components/TaskDialog";
 import { CommandPalette } from "../components/CommandPalette";
+import { SettingsDialog } from "../components/SettingsDialog";
+import { Splash } from "../components/Splash";
 import { BoardIcon, ListIcon, MoonIcon, SearchIcon, SunIcon } from "../components/Icons";
 
 const readPref = (key, fallback) => {
@@ -29,11 +31,13 @@ const isTyping = (el) => el && (el.tagName === "INPUT" || el.tagName === "TEXTAR
 
 function Dashboard() {
   const navigate = useNavigate();
-  const [theme, toggleTheme] = useTheme();
+  const { prefs, update: updatePrefs, theme, toggleTheme } = usePreferences();
 
   const [user, setUser] = useState(null);
   const [projects, setProjects] = useState([]);
   const [projectsLoaded, setProjectsLoaded] = useState(false);
+  const [loadFailed, setLoadFailed] = useState(false);
+  const [loadAttempt, setLoadAttempt] = useState(0);
   const [selectedProject, setSelectedProject] = useState(null);
   const [tasks, setTasks] = useState([]);
   const [loadingTasks, setLoadingTasks] = useState(false);
@@ -43,6 +47,7 @@ function Dashboard() {
   const [selectedId, setSelectedId] = useState(null);
   const [editing, setEditing] = useState(null);
   const [paletteOpen, setPaletteOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const [toast, setToast] = useState("");
 
   const quickAddRef = useRef(null);
@@ -56,8 +61,11 @@ function Dashboard() {
     toastTimer.current = window.setTimeout(() => setToast(""), 3500);
   }, []);
 
-  // Load the user and their projects once; reopen the last project used.
+  // Load the user and their projects; reopen the last project used.
+  // loadAttempt changes when the user retries after a failed load.
   useEffect(() => {
+    setLoadFailed(false);
+    setProjectsLoaded(false);
     API.get("/me").then((r) => setUser(r.data)).catch(() => {});
     API.get("/projects")
       .then((r) => {
@@ -65,10 +73,10 @@ function Dashboard() {
         const last = Number(readPref("project", ""));
         const pick = r.data.find((p) => p.id === last) || r.data[0];
         if (pick) setSelectedProject(pick.id);
+        setProjectsLoaded(true);
       })
-      .catch(() => notify("Couldn’t load projects"))
-      .finally(() => setProjectsLoaded(true));
-  }, [notify]);
+      .catch(() => setLoadFailed(true));
+  }, [loadAttempt]);
 
   useEffect(() => {
     if (selectedProject === null) return;
@@ -200,7 +208,7 @@ function Dashboard() {
         setPaletteOpen((o) => !o);
         return;
       }
-      if (paletteOpen || editing || isTyping(e.target) || e.metaKey || e.ctrlKey || e.altKey) return;
+      if (paletteOpen || editing || settingsOpen || isTyping(e.target) || e.metaKey || e.ctrlKey || e.altKey) return;
 
       const index = visible.findIndex((t) => t.id === selectedId);
       const key = e.key.toLowerCase();
@@ -243,7 +251,7 @@ function Dashboard() {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [paletteOpen, editing, visible, selectedId, selectedTask, toggleTask, moveTask, deleteTask]);
+  }, [paletteOpen, editing, settingsOpen, visible, selectedId, selectedTask, toggleTask, moveTask, deleteTask]);
 
   // Keep the keyboard-selected task in view.
   useEffect(() => {
@@ -273,6 +281,7 @@ function Dashboard() {
       { id: "new", group: "Actions", label: "New task", keys: ["C"], run: () => setTimeout(() => quickAddRef.current?.focus(), 0) },
       { id: "view", group: "Actions", label: view === "board" ? "Switch to list view" : "Switch to board view", keys: ["V"], run: () => setView(view === "board" ? "list" : "board") },
       { id: "theme", group: "Actions", label: theme === "dark" ? "Switch to light mode" : "Switch to dark mode", run: toggleTheme },
+      { id: "settings", group: "Actions", label: "Open settings (profile, password, appearance)", run: () => setSettingsOpen(true) },
       { id: "search", group: "Actions", label: "Search tasks", keys: ["/"], run: () => setTimeout(() => searchRef.current?.focus(), 0) },
       { id: "logout", group: "Actions", label: "Log out", run: logout }
     );
@@ -289,6 +298,21 @@ function Dashboard() {
 
   const cardProps = { onSelect: setSelectedId, onToggle: toggleTask, onEdit: setEditing, onDelete: deleteTask };
 
+  if (loadFailed) {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center gap-3 px-6 text-center" role="alert">
+        <h1 className="text-base font-semibold">Can’t reach the server</h1>
+        <p className="max-w-sm text-sm leading-relaxed text-muted">
+          Your tasks are safe. The server may still be starting up, or your connection dropped.
+        </p>
+        <button onClick={() => setLoadAttempt((n) => n + 1)} className="btn-primary mt-2">
+          Try again
+        </button>
+      </div>
+    );
+  }
+  if (!projectsLoaded) return <Splash />;
+
   return (
     <div className="min-h-screen md:flex">
       <Sidebar
@@ -302,6 +326,7 @@ function Dashboard() {
         theme={theme}
         onToggleTheme={toggleTheme}
         onOpenPalette={() => setPaletteOpen(true)}
+        onOpenSettings={() => setSettingsOpen(true)}
         onLogout={logout}
       />
 
@@ -361,7 +386,7 @@ function Dashboard() {
           </button>
         </header>
 
-        {projectsLoaded && projects.length === 0 ? (
+        {projects.length === 0 ? (
           <EmptyState title="Create your first project" body="Projects group your tasks. Use the + next to Projects in the sidebar." />
         ) : (
           <>
@@ -399,6 +424,16 @@ function Dashboard() {
         </footer>
       </main>
 
+      {settingsOpen && (
+        <SettingsDialog
+          user={user}
+          onUserChange={setUser}
+          prefs={prefs}
+          theme={theme}
+          onPrefsChange={updatePrefs}
+          onClose={() => setSettingsOpen(false)}
+        />
+      )}
       {editing && <TaskDialog task={editing} onSave={saveEdit} onClose={() => setEditing(null)} />}
       {paletteOpen && (
         <CommandPalette

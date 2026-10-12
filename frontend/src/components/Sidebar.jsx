@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { projectColour } from "../lib/tasks";
-import { LogoutIcon, MoonIcon, PlusIcon, SunIcon, TrashIcon } from "./Icons";
+import { Avatar } from "./Avatar";
+import { GearIcon, LogoutIcon, MoonIcon, PlusIcon, SunIcon, TrashIcon } from "./Icons";
 
 // Workspace sidebar: projects, the command menu shortcut, theme and logout.
 // On small screens it collapses into a top bar with horizontally scrolling projects.
@@ -15,6 +16,7 @@ export function Sidebar({
   theme,
   onToggleTheme,
   onOpenPalette,
+  onOpenSettings,
   onLogout,
 }) {
   const [adding, setAdding] = useState(false);
@@ -28,19 +30,20 @@ export function Sidebar({
     setAdding(false);
   };
 
-  const initial = (user?.username || "?").charAt(0).toUpperCase();
-
   return (
     <aside className="flex flex-col gap-1 border-b border-line bg-panel p-3 md:sticky md:top-0 md:h-screen md:w-60 md:shrink-0 md:border-b-0 md:border-r">
-      <div className="flex items-center gap-2 px-2 pb-3 pt-1">
-        <span className="flex h-6 w-6 items-center justify-center rounded-md bg-btn font-mono text-[10px] font-medium text-btn-ink">
-          {initial}
+      <button
+        onClick={onOpenSettings}
+        title="Profile and settings"
+        className="group mb-2 flex items-center gap-2 rounded-md px-2 py-1.5 text-left transition hover:bg-card"
+      >
+        <Avatar user={user} size={28} />
+        <span className="min-w-0 flex-1 leading-tight">
+          <span className="block truncate text-sm font-semibold">{user ? `${user.username}’s space` : "Smart Tasks"}</span>
+          <span className="block truncate font-mono text-[10px] text-faint">{user?.email || "loading…"}</span>
         </span>
-        <div className="min-w-0 leading-tight">
-          <div className="truncate text-sm font-semibold">{user ? `${user.username}’s space` : "Smart Tasks"}</div>
-          <div className="truncate font-mono text-[10px] text-faint">{user?.email || "loading…"}</div>
-        </div>
-      </div>
+        <GearIcon className="shrink-0 text-faint opacity-0 transition group-hover:opacity-100" />
+      </button>
 
       <button
         onClick={onOpenPalette}
@@ -112,6 +115,12 @@ export function Sidebar({
       </nav>
 
       <div className="mt-auto hidden flex-col gap-1 pt-4 md:flex">
+        <button
+          onClick={onOpenSettings}
+          className="flex items-center gap-2 rounded-md px-2 py-1.5 text-sm text-muted transition hover:bg-card hover:text-ink"
+        >
+          <GearIcon /> Settings
+        </button>
         <button
           onClick={onToggleTheme}
           className="flex items-center gap-2 rounded-md px-2 py-1.5 text-sm text-muted transition hover:bg-card hover:text-ink"
