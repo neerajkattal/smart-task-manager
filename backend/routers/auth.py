@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from schemas import UserCreate
+from schemas import UserCreate, ProfileUpdate, PasswordChange
 
 from models import User
 from fastapi import HTTPException, status, Depends
@@ -78,13 +78,67 @@ def login(
   )
   return {"access_token": access_token, "token_type": "bearer"}
 
+def user_out(user: User):
+    return {
+        "id": user.id,
+        "email": user.email,
+        "username": user.username,
+        "avatar": user.avatar,
+    }
+
+
 @router.get("/me")
 def get_me(current_user: User = Depends(get_current_user)):
-    return {
-    "id": current_user.id,
-    "email": current_user.email,
-    "username": current_user.username
-}
+    return user_out(current_user)
+
+
+# Update username, email and/or profile picture. Tokens are tied to the email,
+# so a new one is returned when it changes.
+@router.patch("/me")
+def update_me(
+    changes: ProfileUpdate,
+    db: Annotated[Session, Depends(get_db)],
+    current_user: User = Depends(get_current_user),
+):
+    if changes.username is not None and changes.username != current_user.username:
+        taken = db.execute(select(User).where(User.username == changes.username)).scalars().first()
+        if taken:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Username already exists")
+        current_user.username = changes.username
+
+    email_changed = False
+    if changes.email is not None:
+        new_email = changes.email.lower()
+        if new_email != current_user.email:
+            taken = db.execute(select(User).where(User.email == new_email)).scalars().first()
+            if taken:
+                raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Email already registered")
+            current_user.email = new_email
+            email_changed = True
+
+    if changes.avatar is not None:
+        if changes.avatar and not changes.avatar.startswith("data:image/"):
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Profile picture must be an image")
+        current_user.avatar = changes.avatar or None
+
+    db.commit()
+    db.refresh(current_user)
+    result = user_out(current_user)
+    if email_changed:
+        result["access_token"] = create_access_token(data={"sub": current_user.email})
+    return result
+
+
+@router.post("/me/password", status_code=status.HTTP_204_NO_CONTENT)
+def change_password(
+    body: PasswordChange,
+    db: Annotated[Session, Depends(get_db)],
+    current_user: User = Depends(get_current_user),
+):
+    if not verify_password(body.current_password, current_user.hashed_password):
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Current password is incorrect")
+    current_user.hashed_password = hash_password(body.new_password)
+    db.commit()
   
 
 
